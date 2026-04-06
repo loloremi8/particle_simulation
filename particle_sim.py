@@ -31,6 +31,56 @@ PARTICLES: Dict[str, ParticleType] = {
     "antimuon": ParticleType("Antimuon", "mi+", MUON_MASS, 1, "light_blue")
 }
 
+class RelativisticParticle:
+    """
+    * Represents a particele with relativistic properties
+    """
+    def __init__(self, particle_type: ParticleType, energy_tev: float):
+        """
+        * initializes a relativistic particle
+        * args:
+        *   particle_type
+        *   energy_tev: kinetic energy in TeV
+        """
+        self.type = particle_type
+        self.energy_mev = energy_tev * 10**6
+
+        #* relativistic momentum: E^2 = (pc)^2 + (mc^2)^2
+        self.momentum = self._calculate_momentum()
+        self.gamma = self._calculate_gamma()
+        self.velocity = self._calculate_velocity()
+
+    def _calculate_momentum(self) -> float:
+        """
+        * Calculating relativistic momentum in MeV/c
+        """
+        total_energy = self.energy_mev + self.type.mass
+        if self.type.mass == 0: #* photon
+            return total_energy
+        return np.sqrt(total_energy**2 - self.type.mass**2)
+
+    def _calculate_gamma(self) -> float:
+        """
+        * Calculating Lorenz factor: y = E/(mc^2)
+        """
+        if self.type.mass == 0:
+            return np.inf
+        return (self.energy_mev + self.type.mass) / self.type.mass
+    
+    def _calculate_velocity(self) -> float:
+        """
+        * Calculating velocity as a fraction of c
+        """
+        if self.type.mass == 0:
+            return 1.0
+        return np.sqrt(1 - 1/self.gamma**2)
+    
+    def get_4momentum(self) -> np.ndarray:
+        """
+        * returns a 4-momentum vecotr (E/c, px, py, pz)
+        """
+        E = self.energy_mev + self.type.mass
+        return np.array([E, 0, 0, 0]) #* spacial components set to zero, since it's a collision on x-axis only
 
 def main():
     st.set_page_config(page_title="Particle collision simulator", layout="wide")
