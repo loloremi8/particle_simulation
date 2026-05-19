@@ -65,5 +65,5 @@ Particle generation is modelled as a multi-channel stochastic process. The types
 
 ## AI and tooling disclosure
 
-- AI assistance: Google Gemini (cloud) and Gemma (local) used to help design the statisctical plots (`plot_energy_distribution` and `plot_particle_types`) and to help spot/fix typos during debugging and developement
+- AI assistance: Google Gemini (cloud) and Gemma (local) used to help design the statisctical plots (`plot_energy_distribution` and `plot_particle_types`), to help spot/fix typos during debugging and developement, and to rephrase docstrings.
 - Pyright was used
