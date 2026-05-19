@@ -41,19 +41,19 @@ PARTICLES: Dict[str, ParticleType] = {
 class RelativisticParticle:
     """
     * Represents a particele with relativistic properties
+    * Creates attributes for: Kinetic eneegy, relativistic momentum, Lorenz factoc, and velocity as a fraction of C
     """
 
     def __init__(self, particle_type: ParticleType, energy_tev: float):
         """
-        * initializes a relativistic particle
+        * initializes a RelativisticParticle
         * args:
-        *   particle_type
+        *   particle_type: particle name, symbol, mass, charge, color
         *   energy_tev: kinetic energy in TeV
         """
         self.type = particle_type
         self.energy_mev = energy_tev * 10**6
 
-        # * relativistic momentum: E^2 = (pc)^2 + (mc^2)^2
         self.momentum = self._calculate_momentum()
         self.gamma = self._calculate_gamma()
         self.velocity = self._calculate_velocity()
@@ -61,6 +61,8 @@ class RelativisticParticle:
     def _calculate_momentum(self) -> float:
         """
         * Calculating relativistic momentum in MeV/c
+        * relativistic momentum: E^2 = (pc)^2 + (mc^2)^2
+        * => p = 1/c * sqrt(E^2 - (mc^2)^2)
         """
         total_energy = self.energy_mev + self.type.mass
         if self.type.mass == 0:  # * photon
@@ -110,7 +112,7 @@ class CollisionEvent:
 
     def _calculate_com_energy(self) -> float:
         """
-        Calculates center of mass energy in TeV
+        * Calculates center-of-mass energy in TeV
         """
         p1_4mom = self.particle1.get_4momentum()
         p2_4mom = self.particle2.get_4momentum()
@@ -124,13 +126,13 @@ class CollisionEvent:
         self,
     ) -> List[Tuple[ParticleType, float, float, float]]:
         """
-        Generates decay products in 3D
-        return: List of (partle_type, theta, phi, energy_fraction) Tuple
+        * Generates decay products in 3D
+        * return: List of (partle_type, theta, phi, energy_fraction)
         """
         energy_tev = self.com_energy
         products = []
 
-        # Determines the number and types based on energy
+        # * Determines the number and types based on energy
         if energy_tev < 0.001:
             n_particles = np.random.randint(2, 4)
             particle_keys = ["photon"]
@@ -156,7 +158,7 @@ class CollisionEvent:
             ]
             probabilities = [0.25, 0.15, 0.15, 0.15, 0.15, 0.075, 0.075]
 
-        for _ in range(n_particles):  # 3D visualisation
+        for _ in range(n_particles):  # * 3D visualisation, using the spherical coordinates
             phi = np.random.uniform(0, 2 * np.pi)
             costheta = np.random.uniform(-1, 1)
             theta = np.arccos(costheta)
@@ -171,9 +173,9 @@ class CollisionEvent:
         return products
 
 
-def initialize_session_state():
+def initialize_session_state() -> None:
     """
-    initializes streamlit state variables
+    * initializes streamlit state variables
     """
     if "collision_data" not in st.session_state:
         st.session_state.collision_data = []
@@ -285,7 +287,7 @@ def plot_energy_distribution(collision_data: pd.DataFrame) -> None:
     ax1.set_xlabel("Center-of-mass energy (TeV)")
     ax1.set_ylabel("Collisions")
     ax1.set_title("Collision energy distribution")
-    ax1.set_facecolor("#1a1a1a")
+    ax1.set_facecolor(("#1a1a1a"))
     ax1.grid(True, alpha=0.3)
 
     ax2.hist(collision_data["n_products"], bins=range(2, int(collision_data["n_products"].max()) + 2), color="#ff4444", alpha=0.7, edgecolor="white")
@@ -295,7 +297,7 @@ def plot_energy_distribution(collision_data: pd.DataFrame) -> None:
     ax2.set_facecolor("#1a1a1a")
     ax2.grid(True, alpha=0.3)
 
-    fig.patch.set_facecolor("#a0a0a0")
+    fig.patch.set_facecolor("#e0e0e0")
     plt.tight_layout()
     st.pyplot(fig)
     plt.close()
@@ -332,6 +334,33 @@ def main():
         st.title("Config")
         st.subheader("Beam setup")
 
+        luminosity = st.slider(
+            "Luminosity (\\*10^34 cm^-2\\*s^-1)",
+            min_value=0.1,
+            max_value=5.0,
+            value=1.0,
+            step=0.01,
+            help="Higher luminosity = more collisions per triger, scales number of events"
+        )
+
+        integration_time = st.slider(
+            "Integration time (s)",
+            min_value=0.1,
+            max_value=10.0,
+            value=1.0,
+            step=0.01,
+            help="Simulated duration, affects collision count via N = sigma * L * t"
+        )
+
+        collision_probability = st.slider(
+            "Collision probability (%)",
+            min_value=10,
+            max_value=100,
+            value=100,
+            step=1,
+            help="Probability each particle pair actually collides"
+        )
+
         beam1_type = st.selectbox("Beam 1 Partcile",
                         options=["proton", "electron", "positron", "antiproton"],
                         format_func=lambda x: f"{PARTICLES[x].symbol} : {PARTICLES[x].name}")
@@ -339,7 +368,20 @@ def main():
                         options=["proton", "electron", "positron", "antiproton"],
                         format_func=lambda x: f"{PARTICLES[x].symbol} : {PARTICLES[x].name}")
 
-        energy = st.slider("Collision energy (TeV)", 0.1, 14.0, 7.0)
+        energy_presets = {
+            "LHC (nominal)": 6.5,
+            "LHC (maximum)": 6.8,
+            "Tevatron": 0.98,
+            "Custom": 7.0 
+        }
+        preset = st.selectbox("Accelerator preset", list(energy_presets))
+
+        if preset == "Custom":
+            energy = st.slider("Beam energy (TeV)", 0.1, 14.0, 7.0)
+        else:
+            energy = energy_presets[preset]
+            st.write(f"Fixed energy: {energy} TeV")
+
         st.subheader("Display settings")
         show_pipe = st.checkbox("Show beam pipe", value=True)
 
@@ -371,34 +413,46 @@ def main():
         st.rerun()
 
     if run_sim:
-        p1 = RelativisticParticle(PARTICLES[beam1_type], energy)
-        p2 = RelativisticParticle(PARTICLES[beam2_type], energy)
+        # * Calculates expected collisions: N = sigma * L * t
+        expected_collisions = int(luminosity * integration_time)
+        expected_collisions = max(1, expected_collisions)
+        
+        all_products = []
+        collision_count = 0
 
-        #* collision event
-        collision = CollisionEvent(p1, p2)
-        products = collision.generate_decay_products()
+        for _ in range(expected_collisions):
+            if np.random.random() * 100 < collision_probability:
+                p1 = RelativisticParticle(PARTICLES[beam1_type], energy)
+                p2 = RelativisticParticle(PARTICLES[beam2_type], energy)
 
-        #* updating session state
-        st.session_state.current_products = products
-        st.session_state.total_collisions += 1
-        st.session_state.total_particles_created += len(products)
+                #* collision event
+                collision = CollisionEvent(p1, p2)
+                products = collision.generate_decay_products()
 
-        collision_data = {
-            "timestamp": collision.timestamp,
-            "particle1": p1.type.symbol,
-            "particle2": p2.type.symbol,
-            "com_energy_tev": collision.com_energy,
-            "n_products": len(products),
-            "products": ", ".join([p[0].symbol for p in products])
-        }
+                all_products.extend(products)
+                collision_count += 1
 
-        st.session_state.collision_data.append(collision_data)
+                collision_data = {
+                    "timestamp": collision.timestamp,
+                    "particle1": p1.type.symbol,
+                    "particle2": p2.type.symbol,
+                    "com_energy_tev": collision.com_energy,
+                    "n_products": len(products),
+                    "products": ", ".join([p[0].symbol for p in products])
+                }
 
-        #* log event
-        event_message = f"Collision: {p1.type.symbol} with {p2.type.symbol} created {len(products)} partcles at an energy level of {collision.com_energy:.2f} TeV"
-        st.session_state.event_log.insert(0, (datetime.now(), event_message))
+                st.session_state.collision_data.append(collision_data)
 
-    #* Main display
+                # * log event
+                event_message = f"Collision: {p1.type.symbol} with {p2.type.symbol} created {len(products)} partcles at an energy level of {collision.com_energy:.2f} TeV"
+                st.session_state.event_log.insert(0, (datetime.now(), event_message))
+
+        if collision_count > 0:
+            st.session_state.current_products = all_products[-30:]
+            st.session_state.total_collisions += collision_count
+            st.session_state.total_particles_created +=len(all_products)
+
+    # * Main display
     st.header("3D Event display")
     st.markdown("*Use mouse to rotate, zoom, and pan*")
 
@@ -409,20 +463,20 @@ def main():
     )
     st.plotly_chart(fig, width="stretch")
 
-    #* stats
+    # * stats
     st.divider()
     column1, column2, column3, column4 = st.columns(4)
 
     with column1:
         st.metric("Total collisions", st.session_state.total_collisions)
     with column2:
-        st.metric("Luminosity", "1.0\\*10^34 cm^-2\\*s^-1")
+        st.metric("Luminosity", f"{luminosity:.1f}\\*10^34 cm^-2\\*s^-1")
     with column3:
-        st.metric("CoM energy", f"{energy * 2:.1f} Tev")
+        st.metric("CoM energy", f"{energy * 2:.1f} TeV")
     with column4:
         st.metric("Particles created", st.session_state.total_particles_created)
 
-    #* analysis of data
+    # * analysis of data
     st.divider()
     tab1, tab2, tab3, tab4 = st.tabs(["Distribution", "Particle types", "Event log", "Data export"])
 
