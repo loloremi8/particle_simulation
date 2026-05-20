@@ -537,6 +537,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# source /home/remi/Documents/Programing/FJFI-Python/particle_simulation/.venv/bin/activate.fish
-# streamlit run /home/remi/Documents/Programing/FJFI-Python/particle_simulation/particle_sim.py --browser.gatherUsageStats false
