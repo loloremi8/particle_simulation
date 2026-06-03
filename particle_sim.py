@@ -87,7 +87,7 @@ class RelativisticParticle:
 
     def get_4momentum(self) -> np.ndarray:
         """
-        * returns a 4-momentum vecotr (E/c, px, py, pz)
+        * returns a 4-momentum vector (E/c, px, py, pz)
         """
         E = self.energy_mev + self.type.mass
         return np.array(
@@ -219,7 +219,7 @@ def create_event_display(show_pipe: bool, collision_active: bool, decay_products
                 )
             )
 
-    # * collision calc - vertexes and trails
+    # * collision calc - vertices and trails
     if collision_active and decay_products:
         fig.add_trace(go.Scatter3d(
             x=[0],
@@ -340,7 +340,7 @@ def main():
             max_value=5.0,
             value=1.0,
             step=0.01,
-            help="Higher luminosity = more collisions per triger, scales number of events"
+            help="Higher luminosity = more collisions per trigger, scales number of events"
         )
 
         integration_time = st.slider(
@@ -388,7 +388,7 @@ def main():
         st.divider()
 
         run_sim = st.button(
-            "Triger collision", type="primary", width="stretch"
+            "Trigger collision", type="primary", width="stretch"
         )
         reset_button = st.button(
             "Reset all", width="stretch"
@@ -444,7 +444,7 @@ def main():
                 st.session_state.collision_data.append(collision_data)
 
                 # * log event
-                event_message = f"Collision: {p1.type.symbol} with {p2.type.symbol} created {len(products)} partcles at an energy level of {collision.com_energy:.2f} TeV"
+                event_message = f"Collision: {p1.type.symbol} with {p2.type.symbol} created {len(products)} particles at an energy level of {collision.com_energy:.2f} TeV"
                 st.session_state.event_log.insert(0, (datetime.now(), event_message))
 
         if collision_count > 0:
@@ -486,7 +486,7 @@ def main():
             df = pd.DataFrame(st.session_state.collision_data)
             plot_energy_distribution(df)
         else:
-            st.info("Run collsions to see analysis")
+            st.info("Run collisions to see analysis")
     with tab2:
         st.subheader("Particle production")
         if st.session_state.collision_data:
