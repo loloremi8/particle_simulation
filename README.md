@@ -1,6 +1,6 @@
 # Particle collision simulator
 
-Interactive particle accelerator simulator built with Streamlit. Configure two beams (protons, electrons, positrons, antiproton), set collision energy and visualize the resulting decay products in 3D. Includes a statistical display and CSV export.
+Interactive particle accelerator simulator built with Streamlit. Configure two beams (protons, electrons, positrons, antiprotons), set collision energy and visualize the resulting decay products in 3D. Includes a statistical display and CSV export.
 
 ## Setup:
 
@@ -27,8 +27,8 @@ streamlit run particle_sim.py |optional| --browser.gatherUsageStats false
 
 ## Usage
 - **Beam configuration**: Select from matter and antimatter particles in the sidebar.
-- **Luminosity scaling**: Adjust the instantaneous luminosity different run conditions. The number of expected events $N$ scales according to $N=\sigma \mathcal{L} \Delta t$.
-- **Triger**: Click "Triger collision" to simulate the event batch.
+- **Luminosity scaling**: Adjust the instantaneous luminosity for different run conditions. The number of expected events $N$ scales according to $N=\sigma \mathcal{L} \Delta t$.
+- **Trigger**: Click "Trigger collision" to simulate the event batch.
 - **Visualization**: Rotate/zoom the 3D view to inspect tracks.
 - **Analysis**: Use tabs for Distribution (histogram), Particle types (pie chart + legend), Event log, and Data export (CSV)
 
@@ -47,7 +47,7 @@ For every particle, the code solves the **Lorentz factor** ($\gamma$) and **velo
 
 ### 2. Center-of-Mass (CoM) energy
 
-In a collider, the useful energy for creating new particles is the invariant mass of the system. For a head-on collision of two particles with four-momentums $P_1$ and $P_2$:
+In a collider, the useful energy for creating new particles is the invariant mass of the system. For a head-on collision of two particles with four-momenta $P_1$ and $P_2$:
 
 $$s = (P_1 + P_2)^2 \Rightarrow E_{cm}= \sqrt{s}$$
 
@@ -57,7 +57,7 @@ The simulation operates in the CoM frame where $P_{total} = 0$, thus $E_{cm} = E
 
 Particle generation is modelled as a multi-channel stochastic process. The types and multiplicity of decay products are energy-dependent:
 
-- **Low energy** ($E < 200$ MeV): Dominated photon and electron pairs.
+- **Low energy** ($E < 200$ MeV): Dominated by photon and electron pairs.
 
 - **High energy** ($E > 1$ TeV): Enables heavy particle production channels including muons, antimuons, protons, and antiprotons.
 
@@ -65,5 +65,5 @@ Particle generation is modelled as a multi-channel stochastic process. The types
 
 ## AI and tooling disclosure
 
-- AI assistance: Google Gemini (cloud) and Gemma (local) used to help design the statisctical plots (`plot_energy_distribution` and `plot_particle_types`), to help spot/fix typos during debugging and developement, and to rephrase docstrings.
+- AI assistance: Google Gemini (cloud) and Gemma (local) used to help design the statistical plots (`plot_energy_distribution` and `plot_particle_types`), to help spot/fix typos during debugging and development, and to rephrase docstrings.
 - Pyright was used

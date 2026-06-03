@@ -40,8 +40,8 @@ PARTICLES: Dict[str, ParticleType] = {
 
 class RelativisticParticle:
     """
-    * Represents a particele with relativistic properties
-    * Creates attributes for: Kinetic eneegy, relativistic momentum, Lorenz factoc, and velocity as a fraction of C
+    * Represents a particle with relativistic properties
+    * Creates attributes for: Kinetic energy, relativistic momentum, Lorentz factor, and velocity as a fraction of C
     """
 
     def __init__(self, particle_type: ParticleType, energy_tev: float):
@@ -71,7 +71,7 @@ class RelativisticParticle:
 
     def _calculate_gamma(self) -> float:
         """
-        * Calculating Lorenz factor: y = E/(mc^2)
+        * Calculating Lorentz factor: y = E/(mc^2)
         """
         if self.type.mass == 0:
             return np.inf
@@ -92,7 +92,7 @@ class RelativisticParticle:
         E = self.energy_mev + self.type.mass
         return np.array(
             [E, 0, 0, 0]
-        )  # * spacial components set to zero, since it's a collision on x-axis only
+        )  # * spatial components set to zero, since it's a collision on x-axis only
 
 
 class CollisionEvent:
@@ -127,7 +127,7 @@ class CollisionEvent:
     ) -> List[Tuple[ParticleType, float, float, float]]:
         """
         * Generates decay products in 3D
-        * return: List of (partle_type, theta, phi, energy_fraction)
+        * return: List of (particle_type, theta, phi, energy_fraction)
         """
         energy_tev = self.com_energy
         products = []
@@ -194,7 +194,7 @@ def initialize_session_state() -> None:
 
 def create_event_display(show_pipe: bool, collision_active: bool, decay_products: List[Tuple[ParticleType, float, float, float]]) -> go.Figure:
     """
-    * Creates the beam projection with particles, and their respectable traces after collision
+    * Creates the beam projection with particles, and their respective traces after collision
     """
     fig = go.Figure()
 
@@ -277,7 +277,7 @@ def create_event_display(show_pipe: bool, collision_active: bool, decay_products
 
 def plot_energy_distribution(collision_data: pd.DataFrame) -> None:
     """
-    * Rendering a historam of center-of-mass energies using Matplotlib
+    * Rendering a histogram of center-of-mass energies using Matplotlib
     * input - collision_data
     * Output - render of plots
     """
@@ -361,10 +361,10 @@ def main():
             help="Probability each particle pair actually collides"
         )
 
-        beam1_type = st.selectbox("Beam 1 Partcile",
+        beam1_type = st.selectbox("Beam 1 Particle",
                         options=["proton", "electron", "positron", "antiproton"],
                         format_func=lambda x: f"{PARTICLES[x].symbol} : {PARTICLES[x].name}")
-        beam2_type = st.selectbox("Beam 2 Partcile",
+        beam2_type = st.selectbox("Beam 2 Particle",
                         options=["proton", "electron", "positron", "antiproton"],
                         format_func=lambda x: f"{PARTICLES[x].symbol} : {PARTICLES[x].name}")
 
